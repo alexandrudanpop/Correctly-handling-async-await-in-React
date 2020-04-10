@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios, { CancelToken } from "axios";
 
-export default function RandomJoke({ more, loadMore }) {
-  const [joke, setJoke] = useState("");
-  const componentIsMounted = useRef(true);
-
+const useIsMounted = () => {
+  const isMounted = useRef(false);
   useEffect(() => {
-    // each useEffect can return a cleanup function
-    return () => {
-      componentIsMounted.current = false;
-    };
-  }, []); // no extra deps => the cleanup function run this on component unmount
+    isMounted.current = true;
+    return () => (isMounted.current = false);
+  }, []);
+  return isMounted;
+};
 
+const useJokeAsync = (componentIsMounted, more) => {
+  const [joke, setJoke] = useState("");
   useEffect(() => {
     const cancelTokenSource = CancelToken.source();
 
@@ -45,7 +45,14 @@ export default function RandomJoke({ more, loadMore }) {
         "Cancelling previous http call because a new one was made ;-)"
       );
     };
-  }, [more]);
+  }, [componentIsMounted, more]);
+
+  return joke;
+};
+
+export default function RandomJoke({ more, loadMore }) {
+  const componentIsMounted = useIsMounted();
+  const joke = useJokeAsync(componentIsMounted, more);
 
   return (
     <div>

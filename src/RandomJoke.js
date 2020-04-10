@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import axios, { CancelToken } from "axios";
 
 export default function RandomJoke({ more, loadMore }) {
   const [joke, setJoke] = useState("");
@@ -13,20 +13,38 @@ export default function RandomJoke({ more, loadMore }) {
   }, []); // no extra deps => the cleanup function run this on component unmount
 
   useEffect(() => {
+    const cancelTokenSource = CancelToken.source();
+
     async function fetchJoke() {
       try {
-        const asyncResponse = await axios("https://api.icndb.com/jokes/random");
+        const asyncResponse = await axios(
+          "https://api.icndb.com/jokes/random",
+          {
+            cancelToken: cancelTokenSource.token,
+          }
+        );
         const { value } = asyncResponse.data;
 
         if (componentIsMounted.current) {
           setJoke(value.joke);
         }
       } catch (err) {
+        if (axios.isCancel(err)) {
+          return console.info(err);
+        }
+
         console.error(err);
       }
     }
 
     fetchJoke();
+
+    return () => {
+      // here we cancel preveous http request that did not complete yet
+      cancelTokenSource.cancel(
+        "Cancelling previous http call because a new one was made ;-)"
+      );
+    };
   }, [more]);
 
   return (

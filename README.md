@@ -174,6 +174,6 @@ So yeah, handling async work in React is a bit complex. Of course we can abstrac
 
 You might not always have to worry about those issues in every situation. If your component is well isolated, meaning it does not depend on prop values for the asynchronous code it runs, things should be ok... You will probably still get the unmount issue from time to time, and you should probably fix that as well if your component un-mounts often. 
 
+Also check:
 [Correctly handling async/await in React components - Part 2](https://dev.to/alexandrudanpop/correctly-handling-async-await-in-react-components-part-2-4fl7)
 
-If you like this post follow me on [Twitter](https://twitter.com/alexandrudanpop) where I post more cool stuff about React and other awesome technologies. :fire::fire::fire:
